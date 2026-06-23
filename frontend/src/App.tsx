@@ -1,56 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css';
 
-
-
-
-
+const iscaller = new URLSearchParams(window.location.search).get("role") === "caller";
+console.log("IS CALLER:", iscaller, "URL:", window.location.href);
 
 function App() {
   const [count, setCount] = useState(0)
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const videoRef = useRef(null);
-
-
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   useEffect(() => {
-    async function startCamera() {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
 
-      videoRef.current.srcObject = stream;
-    }
-
-    startCamera().then((f) => console.log("dwdddddddddddddddddddddddddddddddd", f));
-  }, []);
-
-  useEffect(() => {
-  const pc = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-  });
-
-  pcRef.current = pc;
-
-  pc.onicecandidate = (event) => {
-    console.log("ICE candidate found:", event.candidate);
-  };
-
-  pc.ontrack = (event) => {
-    console.log("Remote track received!", event.streams[0]);
-  };
-
-  return () => {
-    pc.close();
-  };
-}, []);
-
-
-
-  useEffect(() => {
     const ws = new WebSocket("ws://localhost:3000")
-
 
     wsRef.current = ws;
 
@@ -60,40 +22,126 @@ function App() {
       ws.send(JSON.stringify({
         type: "join_room",
         roomId: "hi",
-        userId: 1
+        userId: 2
       }));
 
-      ws.send(JSON.stringify({
-        type: "signal",
-        roomId: "hi",
-        userId: 1,
-        payload: "hello g0000"
-      }));
+
     };
 
-    ws.onmessage = (event) => {
-      console.log(event.data);
+
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    });
+
+    pcRef.current = pc;
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: "signal",
+          roomId: "hi",
+          userId: 2,
+          signalType: "ice-candidate",
+          payload: event.candidate
+        }));
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log("Remote track received!", event.streams[0]);
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    async function setupCamera() {
+      console.log("setup camers")
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+
+      videoRef.current.srcObject = stream;
+
+      // attach each track (video + audio) to the peer connection
+      stream.getTracks().forEach((track) => {
+        pc.addTrack(track, stream);
+      });
+      console.log("stram ")
+      if (iscaller) {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        console.log("offer")
+
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          console.log("setupe wesocket camres")
+          wsRef.current.send(JSON.stringify({
+            type: "signal",
+            roomId: "hi",
+            userId: 2,
+            signalType: "offer",
+            payload: offer
+          }));
+        }
+      }
+
+
+
+    }
+
+    setupCamera();
+
+
+
+
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "signal" && data.signalType === "offer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
+        console.log("ws on messsage")
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        ws.send(JSON.stringify({
+          type: "signal",
+          roomId: "hi",
+          userId: 2,        // tab B's id — must differ from tab A
+          signalType: "answer",
+          payload: answer
+        }));
+      }
+
+      if (data.type === "signal" && data.signalType === "answer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
+      }
+
+      if (data.type === "signal" && data.signalType === "ice-candidate") {
+        await pc.addIceCandidate(new RTCIceCandidate(data.payload));
+      }
     };
 
     return () => {
-      ws.close();
+      pc.close();
+      ws.close()
     };
-
-
-  }, [])
+  }, []);
 
 
   return (
     <>
       <section id="center">
-
         <div>
           <h1>Get started</h1>
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
           <video ref={videoRef} autoPlay muted playsInline />
-
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+          />
         </div>
         <button
           type="button"

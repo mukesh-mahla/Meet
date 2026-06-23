@@ -44,6 +44,7 @@ wss.on("connection", (ws:userSocket) => {
       broadcastToRoom(ws.roomId!, {
         type: "signal",
         from: ws.userId,
+        signalType: data.signalType,
         payload: data.payload,
       }, ws);
     }
@@ -57,7 +58,7 @@ wss.on("connection", (ws:userSocket) => {
   });
 });
 
-function broadcastToRoom(roomId:string, message:{}, excludeWs:WebSocket) {
+function broadcastToRoom(roomId:string, message:any, excludeWs:WebSocket) {
   const sockets = rooms.get(roomId) || [];
   sockets.forEach((s) => {
     if (s !== excludeWs && s.readyState === s.OPEN) {
