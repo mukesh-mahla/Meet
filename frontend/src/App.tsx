@@ -130,27 +130,14 @@ function App() {
 
   return (
     <>
-      <section id="center">
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-          <video ref={videoRef} autoPlay muted playsInline />
+     
+          <video ref={videoRef} autoPlay muted playsInline width={300} height={300} className=' rounded-md ' />
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
           />
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+       
 
       <div className="ticks"></div>
 
