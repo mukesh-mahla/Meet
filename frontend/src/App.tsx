@@ -5,36 +5,29 @@ const iscaller = new URLSearchParams(window.location.search).get("role") === "ca
 console.log("IS CALLER:", iscaller, "URL:", window.location.href);
 
 function App() {
-  const [count, setCount] = useState(0)
+
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const videoRef = useRef(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [text,setText] = useState<{from:number, payload:string}[]>([])
   useEffect(() => {
-
     const ws = new WebSocket("ws://localhost:3000")
-
     wsRef.current = ws;
-
     ws.onopen = () => {
       console.log("connected");
-
       ws.send(JSON.stringify({
         type: "join_room",
         roomId: "hi",
         userId: 2
       }));
-
-
     };
-
 
     const pc = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
     });
-
     pcRef.current = pc;
-
     pc.onicecandidate = (event) => {
       if (event.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
@@ -84,16 +77,8 @@ function App() {
           }));
         }
       }
-
-
-
     }
-
     setupCamera();
-
-
-
-
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
 
@@ -119,6 +104,10 @@ function App() {
       if (data.type === "signal" && data.signalType === "ice-candidate") {
         await pc.addIceCandidate(new RTCIceCandidate(data.payload));
       }
+
+      if(data.type === "text"){
+        setText((prev)=>[...prev,{from:data.from,payload:data.payload}])
+      }
     };
 
     return () => {
@@ -127,90 +116,45 @@ function App() {
     };
   }, []);
 
+  function handleclick(){
+      const text = inputRef.current.value
+      if(text === ""){
+        return
+      }
+      
+       if (wsRef.current?.readyState === WebSocket.OPEN) {
+    wsRef.current.send(JSON.stringify({
+      type: "chat",
+      userId: 1,
+      payload: text,
+      roomId: "hi"
+    }));
+
+      
+  }   
+  setText((prev)=>[...prev,{from:1,payload:text}])
+
+   inputRef.current.value = "";
+  }
+
 
   return (
     <>
-     
-          <video ref={videoRef} autoPlay muted playsInline width={300} height={300} className=' rounded-md ' />
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-          />
+      <video ref={videoRef} autoPlay muted playsInline width={300} height={300} className=' rounded-md ' />
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+      />
+      <input type="text" ref={inputRef} />
+      <button onClick={()=>{handleclick()}} >send</button>
+      {text.map((m)=>(
+        <div>
+           <div>{m.from}</div>
+        <span>{m.payload}</span>
+        </div>
        
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      ))}
     </>
   )
 }

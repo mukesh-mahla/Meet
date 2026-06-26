@@ -1,23 +1,21 @@
-
 import http from "http";
 import { WebSocketServer } from "ws";
 import express from "express";
 import type { WebSocket } from "ws";
 
-
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-interface userSocket extends WebSocket{
-    userId?:string
-    roomId?:string
+interface userSocket extends WebSocket {
+  userId?: string;
+  roomId?: string;
 }
 
 // roomId -> array of ws connections
 const rooms = new Map<string, userSocket[]>();
 
-wss.on("connection", (ws:userSocket) => {
+wss.on("connection", (ws: userSocket) => {
   ws.on("error", console.error);
 
   ws.on("message", (raw) => {
@@ -33,20 +31,40 @@ wss.on("connection", (ws:userSocket) => {
       rooms.get(data.roomId)?.push(ws);
 
       // tell everyone else in the room that someone new joined
-      broadcastToRoom(data.roomId, {
-        type: "user_joined",
-        userId: data.userId,
-      }, ws);
+      broadcastToRoom(
+        data.roomId,
+        {
+          type: "user_joined",
+          userId: data.userId,
+        },
+        ws,
+      );
     }
 
     if (data.type === "signal") {
       // forward WebRTC offer/answer/ICE candidates to everyone else in room
-      broadcastToRoom(ws.roomId!, {
-        type: "signal",
-        from: ws.userId,
-        signalType: data.signalType,
-        payload: data.payload,
-      }, ws);
+      broadcastToRoom(
+        ws.roomId!,
+        {
+          type: "signal",
+          from: ws.userId,
+          signalType: data.signalType,
+          payload: data.payload,
+        },
+        ws,
+      );
+    }
+
+    if (data.type === "chat") {
+      broadcastToRoom(
+        ws.roomId!,
+        {
+          type: "text",
+          from: ws.userId,
+          payload: data.payload,
+        },
+        ws,
+      );
     }
   });
 
@@ -58,7 +76,7 @@ wss.on("connection", (ws:userSocket) => {
   });
 });
 
-function broadcastToRoom(roomId:string, message:any, excludeWs:WebSocket) {
+function broadcastToRoom(roomId: string, message: any, excludeWs: WebSocket) {
   const sockets = rooms.get(roomId) || [];
   sockets.forEach((s) => {
     if (s !== excludeWs && s.readyState === s.OPEN) {
