@@ -6,6 +6,16 @@ console.log("IS CALLER:", iscaller, "URL:", window.location.href);
 
 function App() {
 
+  let person = {
+    name:"mukehs",
+    g:(){
+      console.log("ji")
+
+    }
+  }
+
+  console.log(person.g())
+
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const videoRef = useRef(null);
@@ -139,11 +149,13 @@ function App() {
 
 
   return (
-    <>
-      <video ref={videoRef} autoPlay muted playsInline width={300} height={300} className=' rounded-md ' />
-      <video
+    <div className='h-full w-full '>
+     
+      <video ref={videoRef} autoPlay muted playsInline width={300} height={300} className=' rounded-md m-4 '  />
+      <video width={300} height={300} className=' rounded-md m-4'
         ref={remoteVideoRef}
         autoPlay
+        muted
         playsInline
       />
       <input type="text" ref={inputRef} />
@@ -155,7 +167,7 @@ function App() {
         </div>
        
       ))}
-    </>
+    </div>
   )
 }
 
