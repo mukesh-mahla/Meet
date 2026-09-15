@@ -28,8 +28,15 @@ wss.on("connection", (ws: userSocket) => {
       if (!rooms.has(data.roomId)) {
         rooms.set(data.roomId, []);
       }
-      rooms.get(data.roomId)?.push(ws);
+      const existingUsers = rooms.get(data.roomId)!;
 
+      // tell the new joiner who's already here
+      ws.send(
+        JSON.stringify({
+          type: "existing_users",
+          users: existingUsers.map((s) => s.userId),
+        }),
+      );
       // tell everyone else in the room that someone new joined
       broadcastToRoom(
         data.roomId,
@@ -39,20 +46,36 @@ wss.on("connection", (ws: userSocket) => {
         },
         ws,
       );
+      rooms.get(data.roomId)?.push(ws);
     }
 
     if (data.type === "signal") {
-      // forward WebRTC offer/answer/ICE candidates to everyone else in room
-      broadcastToRoom(
-        ws.roomId!,
-        {
-          type: "signal",
-          from: ws.userId,
-          signalType: data.signalType,
-          payload: data.payload,
-        },
-        ws,
-      );
+      const sockets = rooms.get(ws.roomId!) || [];
+
+      if (data.to) {
+        const target = sockets.find((s) => s.userId === data.to);
+        target!.send(
+          JSON.stringify({
+            type: "signal",
+            from: ws.userId,
+            to: data.to,
+            signalType: data.signalType,
+            payload: data.payload,
+          }),
+        );
+      } else {
+        // forward WebRTC offer/answer/ICE candidates to everyone else in room
+        broadcastToRoom(
+          ws.roomId!,
+          {
+            type: "signal",
+            from: ws.userId,
+            signalType: data.signalType,
+            payload: data.payload,
+          },
+          ws,
+        );
+      }
     }
 
     if (data.type === "chat") {
