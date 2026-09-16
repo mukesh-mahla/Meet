@@ -29,7 +29,6 @@ wss.on("connection", (ws: userSocket) => {
         rooms.set(data.roomId, []);
       }
       const existingUsers = rooms.get(data.roomId)!;
-
       // tell the new joiner who's already here
       ws.send(
         JSON.stringify({
