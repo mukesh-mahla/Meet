@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css';
 
-function App() {
+  function App() {
   const myUserId = new URLSearchParams(window.location.search).get("user") || "1";
 
   const wsRef = useRef<WebSocket | null>(null);

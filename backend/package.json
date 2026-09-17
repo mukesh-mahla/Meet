@@ -4,18 +4,24 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@prisma/cli-engine": "0.4.0",
+    "@types/bun": "latest",
+    "@types/node": "^22.20.3",
+    "prisma": "^8.0.0-rc.15"
   },
   "scripts": {
-    "dev":"bun index.ts",
-    "ndev":"node index.ts"
+    "dev": "bun index.ts",
+    "ndev": "node index.ts",
+    "contract:emit": "prisma contract emit"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@prisma/orm-postgres": "^8.0.0-rc.11",
     "@types/express": "^5.0.6",
     "@types/ws": "^8.18.1",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "ws": "^8.21.0"
   }
