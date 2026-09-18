@@ -1,21 +1,33 @@
 // use prisma-8
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   email     String   @unique
   username  String?
   name      String?
-  posts     Post[]
+  chats     Chat[]
+  rooms     Room[]
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Room {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  chats     Chat[]
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
 }
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  payload   String
+  userId    String
+  roomId    String
+  user      User     @relation(fields: [userId], references: [id])
+  room      Room     @relation(fields: [roomId], references: [id])
+  createdAt TimestamptzString @default(now())
+}
+
+

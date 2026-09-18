@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css';
+import { JoinRoom } from './pages/joinRoom';
 
   function App() {
   const myUserId = new URLSearchParams(window.location.search).get("user") || "1";
@@ -233,6 +234,7 @@ import './App.css';
 
       <button onClick={startScreenShare}>share screen</button>
       <button onClick={stopScreenShare}>stop screen</button>
+      <JoinRoom/>
     </div>
 
   )
