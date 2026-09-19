@@ -7,7 +7,6 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-app.use("/",)
 
 interface userSocket extends WebSocket {
   userId?: string;
