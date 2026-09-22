@@ -236,7 +236,7 @@ import { JoinRoom } from './pages/joinRoom';
       <button onClick={stopScreenShare}>stop screen</button>
       <JoinRoom/>
     </div>
-
+      
   )
 }
 

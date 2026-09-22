@@ -2,10 +2,15 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import express from "express";
 import type { WebSocket } from "ws";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./src/lib/auth";
 
 const app = express();
+app.all("/api/auth/*", toNodeHandler(auth));
+app.use(express.json())
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
+
 
 
 interface userSocket extends WebSocket {
