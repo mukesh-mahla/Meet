@@ -4,13 +4,29 @@ import express from "express";
 import type { WebSocket } from "ws";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./src/lib/auth";
-
+import cors from "cors"
+import { userRouter } from "./src/routes/route";
 const app = express();
-app.all("/api/auth/*", toNodeHandler(auth));
+app.use((req, res, next) => {
+    console.log("REQUEST ORIGIN:", req.headers.origin)
+    next()
+})
+
+const corsOptions = {
+    origin: "http://localhost:5173",
+    credentials: true,
+}
+
+app.use(cors(corsOptions))
+
+app.options("/api/auth/*splat", cors(corsOptions))
+
 app.use(express.json())
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
+app.use('/api',userRouter)
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-
 
 
 interface userSocket extends WebSocket {
@@ -93,7 +109,7 @@ wss.on("connection", (ws: userSocket) => {
         },
         ws,
       );
-    }
+    } 
   });
 
   ws.on("close", () => {
