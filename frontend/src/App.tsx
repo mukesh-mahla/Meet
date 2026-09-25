@@ -3,6 +3,8 @@ import './App.css';
 
 import { Signin } from './pages/signin';
 import { Signup } from './pages/signup';
+import { CallRoom } from './pages/call';
+
 
 
 function App(){
@@ -10,6 +12,7 @@ function App(){
    <Routes>
       <Route path='signin' element={<Signin/>}/>
       <Route path='signup' element={<Signup/>}/>
+      <Route path="/room/:roomId" element={<CallRoom />} />
    </Routes>
   </BrowserRouter>
 

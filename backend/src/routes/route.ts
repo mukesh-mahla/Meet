@@ -8,7 +8,7 @@ userRouter.post('/create-room',async(req,res)=>{
                 const data = await prisma.room.create({
                     data:{
                         name,
-                     userId
+                       userId
                     }
                  })
 

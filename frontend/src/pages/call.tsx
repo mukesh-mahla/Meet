@@ -2,12 +2,42 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css';
 import { useParams } from 'react-router-dom';
 import { authClient } from '../lib/auth-client';
+import type { BetterFetchError } from 'better-auth/react';
+import type { SessionQueryParams } from 'better-auth';
 
 
  export function CallRoom() {
- const {roomId} = useParams()
+      const {roomId} = useParams()
 
-  
+   const {data} =  authClient.useSession() as {
+    data: {
+        session: {
+            id: string
+            userId: string
+            expiresAt: Date
+            createdAt: Date
+            updatedAt: Date
+            ipAddress: string
+            userAgent: string
+            token: string
+        }
+        user: {
+            id: string
+            name: string
+            email: string
+            emailVerified: boolean
+            image?: string | null
+            createdAt: Date
+            updatedAt: Date
+        }
+    } | null
+    isPending: boolean
+    isRefetching: boolean
+    error: BetterFetchError | null
+    refetch: (queryParams?: {
+        query?: SessionQueryParams
+    }) => Promise<void>
+}
  
   const wsRef = useRef<WebSocket | null>(null);
   const pcsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
@@ -48,15 +78,15 @@ import { authClient } from '../lib/auth-client';
   
 
   useEffect(() => {
-
+   if (!data || !roomId) return
     const ws = new WebSocket("ws://localhost:3000")
     wsRef.current = ws;
     ws.onopen = () => {
       console.log("connected");
       ws.send(JSON.stringify({
         type: "join_room",
-        roomId: "hi",
-        userId: 1
+        roomId: roomId,
+        userId: data.user.id
       }));
     };
 
@@ -70,7 +100,7 @@ import { authClient } from '../lib/auth-client';
         if (event.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({
             type: "signal",
-            roomId: "hi",
+            roomId: roomId,
             signalType: "ice-candidate",
             to: remoteUserId,
             payload: event.candidate
@@ -129,7 +159,7 @@ import { authClient } from '../lib/auth-client';
           await pc.setLocalDescription(offer);
           wsRef.current?.send(JSON.stringify({
             type: "signal",
-            roomId: "hi",
+            roomId: roomId,
             signalType: "offer",
             to: userId,
             payload: offer
@@ -153,7 +183,7 @@ import { authClient } from '../lib/auth-client';
         await flushIceCandidates(data.from, pc);
         wsRef.current?.send(JSON.stringify({
           type: "signal",
-          roomId: "hi",
+          roomId: roomId,
           signalType: "answer",
           to: data.from,
           payload: answer
@@ -190,7 +220,7 @@ import { authClient } from '../lib/auth-client';
       pcsRef.current.clear();
       ws.close();
     };
-  }, []);
+  }, [data,roomId]);
 
   function handleclick() {
     const text = inputRef.current.value
@@ -201,9 +231,9 @@ import { authClient } from '../lib/auth-client';
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
         type: "chat",
-        userId: roomId,
+        userId: data.user.id,
         payload: text,
-        roomId: "hi"
+        roomId: roomId
       }));
 
 
