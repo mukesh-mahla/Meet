@@ -1,15 +1,14 @@
-import axios from "axios"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-export function JoinRoom() {
+export function Meet() {
     const navigate = useNavigate()
 
     const [roomName, setRoomName] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
-    async function handleJoinRoom(
+    async function handleCreateRoom(
         e: React.FormEvent<HTMLFormElement>
     ) {
         e.preventDefault()
@@ -22,17 +21,30 @@ export function JoinRoom() {
         setError("")
 
         try {
-            const response = await axios.get(`http://localhost:3000/api/rooms/${name}`,{withCredentials:true})
+            const response = await fetch(
+                "http://localhost:3000/api/create-room",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        name,
+                    }),
+                }
+            )
 
-        console.log(response)
+            const result = await response.json()
 
-            if (!response) {
-                setError(response.data.msg || "Room not found")
+            if (!response.ok) {
+                setError(result.message || "Could not create room")
                 return
             }
 
-            // Again, don't enter CallRoom directly.
-            navigate(`/room/${response.data.roomId}/lobby`)
+            // Don't enter CallRoom yet.
+            // Go to the lobby first.
+            navigate(`/room/${result.id}/lobby`)
         } catch {
             setError("Something went wrong. Please try again.")
         } finally {
@@ -44,7 +56,6 @@ export function JoinRoom() {
         <div className="min-h-screen bg-[#fafafa] text-zinc-950">
 
             <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-
                 <button
                     onClick={() => navigate("/")}
                     className="flex items-center gap-2"
@@ -64,7 +75,6 @@ export function JoinRoom() {
                 >
                     Back to home
                 </button>
-
             </nav>
 
 
@@ -75,15 +85,15 @@ export function JoinRoom() {
                     <div className="mb-8 text-center">
 
                         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-950 text-2xl text-white">
-                            →
+                            +
                         </div>
 
                         <h1 className="mt-6 text-4xl font-semibold tracking-tight">
-                            Join a meeting
+                            Create a meeting
                         </h1>
 
                         <p className="mt-3 text-zinc-500">
-                            Enter the meeting name shared with you.
+                            Give your meeting a name and invite others.
                         </p>
 
                     </div>
@@ -92,7 +102,7 @@ export function JoinRoom() {
                     <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm">
 
                         <form
-                            onSubmit={handleJoinRoom}
+                            onSubmit={handleCreateRoom}
                             className="space-y-6"
                         >
 
@@ -131,27 +141,11 @@ export function JoinRoom() {
                                 className="w-full rounded-xl bg-zinc-950 py-3.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 {loading
-                                    ? "Finding meeting..."
-                                    : "Continue"}
+                                    ? "Creating meeting..."
+                                    : "Create meeting"}
                             </button>
 
                         </form>
-
-
-                        <div className="mt-6 border-t border-zinc-100 pt-6 text-center">
-
-                            <p className="text-sm text-zinc-400">
-                                Want to start your own meeting?
-                            </p>
-
-                            <button
-                                onClick={() => navigate("/meet")}
-                                className="mt-2 text-sm font-semibold hover:underline"
-                            >
-                                Create a meeting
-                            </button>
-
-                        </div>
 
                     </div>
 

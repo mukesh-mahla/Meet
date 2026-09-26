@@ -1,4 +1,4 @@
-import http from "http";
+import http, { IncomingMessage } from "http";
 import { WebSocketServer } from "ws";
 import express from "express";
 import type { WebSocket } from "ws";
@@ -6,11 +6,9 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./src/lib/auth";
 import cors from "cors"
 import { userRouter } from "./src/routes/route";
+import { Authentication } from "./src/lib/authentication";
 const app = express();
-app.use((req, res, next) => {
-    console.log("REQUEST ORIGIN:", req.headers.origin)
-    next()
-})
+
 
 const corsOptions = {
     origin: "http://localhost:5173",
@@ -25,6 +23,8 @@ app.use(express.json())
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use('/api',userRouter)
+
+
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
@@ -37,7 +37,16 @@ interface userSocket extends WebSocket {
 // roomId -> array of ws connections
 const rooms = new Map<string, userSocket[]>();
 
-wss.on("connection", (ws: userSocket) => {
+wss.on("connection", async(ws: userSocket,req:IncomingMessage) => {
+
+  const session = await Authentication(req.headers)
+   if (!session) {
+            ws.close(1008, "Not authenticated");
+            return;
+        }
+
+        ws.userId=session
+
   ws.on("error", console.error);
 
   ws.on("message", (raw) => {
@@ -45,7 +54,7 @@ wss.on("connection", (ws: userSocket) => {
 
     if (data.type === "join_room") {
       ws.roomId = data.roomId;
-      ws.userId = data.userId;
+      
 
       if (!rooms.has(data.roomId)) {
         rooms.set(data.roomId, []);
@@ -63,7 +72,7 @@ wss.on("connection", (ws: userSocket) => {
         data.roomId,
         {
           type: "user_joined",
-          userId: data.userId,
+          userId: ws.userId,
         },
         ws,
       );
