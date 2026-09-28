@@ -18,7 +18,12 @@ export function Signup() {
             name,
             email,
             password,
-        })
+        },{
+            onSuccess:(ctx)=>{
+              navigate(`/meet`)
+            }
+        }
+    )
 
         if (error) {
             console.log(error)

@@ -45,7 +45,7 @@ export function Lobby() {
                     return
                 }
 
-                setRoom(result)
+                setRoom(result.data)
             } catch {
                 setError("Unable to load room")
             } finally {
