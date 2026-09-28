@@ -317,7 +317,7 @@ export function Lobby() {
 
                                 <input
                                     readOnly
-                                    value={`${window.location.origin}/room/${room.id}`}
+                                    value={`${window.location.origin}/room/${roomId}`}
                                     className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-zinc-500 outline-none"
                                 />
 
