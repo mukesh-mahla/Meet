@@ -12,7 +12,8 @@
   "scripts": {
     "dev": "bun index.ts",
     "ndev": "node index.ts",
-    "contract:emit": "prisma contract emit"
+    "contract:emit": "prisma contract emit",
+    "start":"bun index.ts"
   },
   "peerDependencies": {
     "typescript": "^5"
