@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 
 export function LandingPage() {
     const navigate = useNavigate()
-
+console.log(`${process.env.BACKEND_URL}`)
     return (
         <div className="min-h-screen bg-[#fafafa] text-zinc-950">
 
