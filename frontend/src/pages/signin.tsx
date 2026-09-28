@@ -2,6 +2,8 @@
 import { authClient } from "../lib/auth-client"
 import { useNavigate } from "react-router-dom"
 export function Signin() {
+        const navigate= useNavigate()
+
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
 
@@ -23,7 +25,6 @@ export function Signin() {
     }
 
     function handleNavigate(){
-        const navigate= useNavigate()
         navigate("/signup")
     }
 
