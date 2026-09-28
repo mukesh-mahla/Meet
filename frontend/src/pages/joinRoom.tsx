@@ -27,7 +27,7 @@ export function JoinRoom() {
         console.log(response)
 
             if (!response) {
-                setError(response.data.msg || "Room not found")
+                setError( "Room not found")
                 return
             }
 
