@@ -11,7 +11,7 @@ const app = express();
 
 
 const corsOptions = {
-    origin: "https://meet-iauf.onrender.com",
+    origin: "https://meet-beta-nine.vercel.app",
     credentials: true,
 }
 
