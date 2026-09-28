@@ -22,7 +22,7 @@ export function Meet() {
 
         try {
             const response = await fetch(
-                "http://localhost:3000/api/create-room",
+                `${process.env.BACKEND_URL}/api/create-room`,
                 {
                     method: "POST",
                     headers: {

@@ -22,7 +22,7 @@ export function JoinRoom() {
         setError("")
 
         try {
-            const response = await axios.get(`http://localhost:3000/api/rooms/${name}`,{withCredentials:true})
+            const response = await axios.get(`${process.env.BACKEND_URL}/api/rooms/${name}`,{withCredentials:true})
 
         console.log(response)
 

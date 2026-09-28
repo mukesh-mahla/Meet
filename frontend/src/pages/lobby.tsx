@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -31,7 +32,7 @@ export function Lobby() {
         async function getRoom() {
             try {
                 const response = await fetch(
-                    `http://localhost:3000/api/rooms/${roomId}`,
+                    `${process.env.BACKEND_URL}/api/rooms/${roomId}`,
                     {
                         credentials: "include",
                     }

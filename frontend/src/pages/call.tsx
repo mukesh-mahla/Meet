@@ -318,7 +318,7 @@ export function CallRoom() {
         if (!data || !roomId) return
 
         const ws = new WebSocket(
-            "ws://localhost:3000"
+            "ws://meet-iauf.onrender.com"
         )
 
         wsRef.current = ws
