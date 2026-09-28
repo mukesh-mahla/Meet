@@ -1,6 +1,6 @@
 
 import { authClient } from "../lib/auth-client"
-
+import { useNavigate } from "react-router-dom"
 export function Signin() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -20,6 +20,11 @@ export function Signin() {
         }
 
         console.log(data)
+    }
+
+    function handleNavigate(){
+        const navigate= useNavigate()
+        navigate("/signup")
     }
 
     return (
@@ -85,7 +90,7 @@ export function Signin() {
 
                 <p className="mt-6 text-center text-sm text-gray-500">
                     Don't have an account?{" "}
-                    <button className="font-semibold text-gray-900 hover:underline">
+                    <button className="font-semibold text-gray-900 hover:underline" onClick={handleNavigate}>
                         Sign up
                     </button>
                 </p>

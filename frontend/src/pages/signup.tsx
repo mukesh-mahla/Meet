@@ -1,4 +1,5 @@
 
+import { useNavigate } from "react-router-dom"
 import { authClient } from "../lib/auth-client"
 
 export function Signup() {
@@ -23,6 +24,10 @@ export function Signup() {
         }
 
         console.log(data)
+    }
+     function handleNavigate(){
+        const navigate= useNavigate()
+        navigate("/signin")
     }
 
     return (
@@ -104,7 +109,7 @@ export function Signup() {
 
                 <p className="mt-6 text-center text-sm text-gray-500">
                     Already have an account?{" "}
-                    <button className="font-semibold text-gray-900 hover:underline">
+                    <button className="font-semibold text-gray-900 hover:underline" onClick={handleNavigate}>
                         Sign in
                     </button>
                 </p>

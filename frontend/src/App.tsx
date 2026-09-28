@@ -14,8 +14,8 @@ import { JoinRoom } from './pages/joinRoom';
 function App(){
   return <BrowserRouter>
    <Routes>
-      <Route path='signin' element={<Signin/>}/>
-      <Route path='signup' element={<Signup/>}/>
+      <Route path='/signin' element={<Signin/>}/>
+      <Route path='/signup' element={<Signup/>}/>
       <Route path="/room/:roomId" element={<CallRoom />} />
       <Route path='/' element={<LandingPage/>} />
       <Route path='/meet' element={<Meet/>}/>
