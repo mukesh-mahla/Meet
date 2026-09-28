@@ -9,5 +9,5 @@ export const auth = betterAuth({
     emailAndPassword:{
         enabled:true
     },
-    trustedOrigins:["http://localhost:5173"]
+    trustedOrigins:["https://meet-beta-nine.vercel.app/"]
 });
