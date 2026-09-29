@@ -1,30 +1,40 @@
 
-import { authClient } from "../lib/auth-client"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { authClient } from "../lib/auth-client"
+
 export function Signin() {
-        const navigate= useNavigate()
+    const navigate = useNavigate()
+
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+
+        setError("")
+        setLoading(true)
 
         const formData = new FormData(e.currentTarget)
 
         const email = formData.get("email") as string
         const password = formData.get("password") as string
 
-        const { data, error } = await authClient.signIn.email({
+        const { error } = await authClient.signIn.email({
             email,
             password,
         })
+
         if (error) {
-            console.log(error)
+            setError(error.message || "Invalid email or password")
+            setLoading(false)
             return
         }
 
-        console.log(data)
+        navigate("/meet", { replace: true })
     }
 
-    function handleNavigate(){
+    function handleNavigate() {
         navigate("/signup")
     }
 
@@ -58,7 +68,8 @@ export function Signin() {
                             type="email"
                             placeholder="you@example.com"
                             required
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                            disabled={loading}
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 disabled:bg-gray-100"
                         />
                     </div>
 
@@ -76,27 +87,39 @@ export function Signin() {
                             type="password"
                             placeholder="••••••••"
                             required
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                            disabled={loading}
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 disabled:bg-gray-100"
                         />
                     </div>
 
+                    {error && (
+                        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                            {error}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
-                        className="w-full rounded-lg bg-gray-900 px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:scale-[0.98]"
+                        disabled={loading}
+                        className="w-full rounded-lg bg-gray-900 px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        Sign in
+                        {loading ? "Signing in..." : "Sign in"}
                     </button>
-
                 </form>
 
                 <p className="mt-6 text-center text-sm text-gray-500">
                     Don't have an account?{" "}
-                    <button className="font-semibold text-gray-900 hover:underline" onClick={handleNavigate}>
+                    <button
+                        type="button"
+                        onClick={handleNavigate}
+                        disabled={loading}
+                        className="font-semibold text-gray-900 hover:underline"
+                    >
                         Sign up
                     </button>
                 </p>
-
             </div>
         </div>
     )
 }
+

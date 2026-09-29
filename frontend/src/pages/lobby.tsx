@@ -1,6 +1,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { authClient } from "../lib/auth-client"
+import type { SessionData } from "./call"
+import type { SessionQueryParams } from "better-auth"
+import type { BetterFetchError } from "better-auth/react"
 
 type Room = {
     id: string
@@ -23,6 +27,16 @@ export function Lobby() {
     const [error, setError] = useState("")
 
     const [copied, setCopied] = useState(false)
+
+     const { data } = authClient.useSession() as {
+            data: SessionData | null
+            isPending: boolean
+            isRefetching: boolean
+            error: BetterFetchError | null
+            refetch: (queryParams?: {
+                query?: SessionQueryParams
+            }) => Promise<void>
+        }
 
 
     // Get room information
@@ -176,6 +190,10 @@ export function Lobby() {
 
             </div>
         )
+    }
+    if(!data){
+        navigate("/signin")
+        return
     }
 
 

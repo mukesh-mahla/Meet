@@ -1,6 +1,10 @@
 import axios from "axios"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { authClient } from "../lib/auth-client"
+import type { SessionData } from "./call"
+import type { BetterFetchError } from "better-auth/react"
+import type { SessionQueryParams } from "better-auth"
 
 export function JoinRoom() {
     const navigate = useNavigate()
@@ -8,6 +12,15 @@ export function JoinRoom() {
     const [roomName, setRoomName] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+     const { data } = authClient.useSession() as {
+                data: SessionData | null
+                isPending: boolean
+                isRefetching: boolean
+                error: BetterFetchError | null
+                refetch: (queryParams?: {
+                    query?: SessionQueryParams
+                }) => Promise<void>
+            }
 
     async function handleJoinRoom(
         e: React.FormEvent<HTMLFormElement>
@@ -38,6 +51,11 @@ export function JoinRoom() {
         } finally {
             setLoading(false)
         }
+    }
+
+    if(!data){
+        navigate("/signin")
+        return
     }
 
     return (

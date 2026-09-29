@@ -34,12 +34,19 @@ export function LandingPage() {
                     </a>
                 </div>
 
-                <button
+                <div><button
                     onClick={() => navigate("/signin")}
                     className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:border-zinc-300 hover:bg-zinc-50"
                 >
                     Sign in
                 </button>
+                 <button
+                    onClick={() => navigate("/signup")}
+                    className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:border-zinc-300 hover:bg-zinc-50"
+                >
+                    Sign up
+                </button>
+                </div>
             </nav>
 
 

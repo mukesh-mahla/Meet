@@ -1,5 +1,9 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { authClient } from "../lib/auth-client"
+import type { SessionData } from "./call"
+import type { BetterFetchError } from "better-auth/react"
+import type { SessionQueryParams } from "better-auth"
 
 export function Meet() {
     const navigate = useNavigate()
@@ -7,6 +11,16 @@ export function Meet() {
     const [roomName, setRoomName] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+  const { data } = authClient.useSession() as {
+            data: SessionData | null
+            isPending: boolean
+            isRefetching: boolean
+            error: BetterFetchError | null
+            refetch: (queryParams?: {
+                query?: SessionQueryParams
+            }) => Promise<void>
+        }
+
 
     async function handleCreateRoom(
         e: React.FormEvent<HTMLFormElement>
@@ -51,6 +65,11 @@ export function Meet() {
             setLoading(false)
         }
     }
+if(!data){
+    navigate("/signin")
+    return
+}
+
 
     return (
         <div className="min-h-screen bg-[#fafafa] text-zinc-950">

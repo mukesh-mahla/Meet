@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { authClient } from "../lib/auth-client"
 import type { BetterFetchError } from "better-auth/react"
 import type { SessionQueryParams } from "better-auth"
 
-type SessionData = {
+export type SessionData = {
     session: {
         id: string
         userId: string
@@ -33,6 +33,7 @@ type Message = {
 
 export function CallRoom() {
     const { roomId } = useParams()
+    const navigate = useNavigate()
 
     const { data, isPending } = authClient.useSession() as {
         data: SessionData | null
@@ -604,7 +605,7 @@ export function CallRoom() {
     |--------------------------------------------------------------------------
     */
 
-    if (isPending || !data) {
+    if (isPending ) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#111] text-white">
                 <div className="text-center">
@@ -626,6 +627,10 @@ export function CallRoom() {
     | UI
     |--------------------------------------------------------------------------
     */
+   if(!data){
+    navigate("/signin")
+    return
+   }
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#111] text-white">
