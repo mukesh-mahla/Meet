@@ -46,7 +46,7 @@ export function Lobby() {
         async function getRoom() {
             try {
                 const response = await fetch(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/rooms/${roomId}`,
+                    `${import.meta.env.VITE_BACKEND_URL}/api/rooms/by-id/${roomId}`,
                     {
                         credentials: "include",
                     }

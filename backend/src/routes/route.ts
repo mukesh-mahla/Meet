@@ -19,7 +19,7 @@ userRouter.post('/create-room',AuthMiddleware, async(req,res)=>{
                  return res.json(data)
 })
 
-userRouter.get('/rooms/:roomName',AuthMiddleware,async(req,res)=>{
+userRouter.get('/rooms/by-name/:roomName',AuthMiddleware,async(req,res)=>{
     const roomName = req.params.roomName as string
 
     const data = await prisma.room.findFirst({
@@ -28,13 +28,13 @@ userRouter.get('/rooms/:roomName',AuthMiddleware,async(req,res)=>{
         }
     })
     if(!data){
-        return res.json({msg:"room not found",status:404})
+        return res.status(404).json({msg:"room not found"})
     }
 
     res.json({roomId:data.id})
 })
 
-userRouter.get('/rooms/:roomId',AuthMiddleware,async(req,res)=>{
+userRouter.get('/rooms/by-id/:roomId',AuthMiddleware,async(req,res)=>{
     const roomId = req.params.roomId as string
     const data = await prisma.room.findFirst({
         where:{

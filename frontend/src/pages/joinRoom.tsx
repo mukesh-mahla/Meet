@@ -35,7 +35,7 @@ export function JoinRoom() {
         setError("")
 
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/${name}`,{withCredentials:true})
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/by-name/${name}`,{withCredentials:true})
 
         console.log(response)
 
